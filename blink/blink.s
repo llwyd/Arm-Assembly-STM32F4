@@ -35,10 +35,10 @@ loop:
 delay:
 	subs r3,1 				@ Substract 1 from delay
 	bne delay 				@ When zero reset
-	cmp r2,r4
-	beq val
-	lsls r2,#1
-	b loop
+	cmp r2,r4				@ Compare current with final
+	beq val 				@ if equal then reset
+	lsls r2,#1 				@ shift left 1 place
+	b loop					@ start loop again
 deadloop:	
 	b	deadloop
 .end   
