@@ -17,7 +17,7 @@ _start:
 start:
 	ldr r0, = 0x40023800	@ Address for RCC Clock Enable for GPIO A
 	ldr r1, [r0, #0x30]	@ Load with Offset
-	orr r1, #0		@ Enable Port A
+	orr r1, #1		@ Enable Port A
 	str r1, [r0, #0x30]	@ Store value
 
 	ldr r0, = 0x40020000 	@ Load Pin Mode Select Register GPIO A
@@ -33,7 +33,7 @@ val:
 loop:
 	eors r1,r2		@ XOR with latest value of r2
 	str r1, [r0, #0x14] 	@ Store with offset
-	mov r3, #0x100000 	@ Arbitrary Delay
+	mov r3, #0x500000 	@ Arbitrary Delay
 delay:
 	subs r3,1 		@ Substract 1 from delay
 	bne delay 		@ When zero reset
