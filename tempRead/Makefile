@@ -1,3 +1,5 @@
+temp.list:temp.o
+	arm-none-eabi-objdump -S temp.o > temp.list
 temp.bin: temp.elf
 	arm-none-eabi-objcopy -Obinary temp.elf temp.bin
 temp.elf: temp.o
