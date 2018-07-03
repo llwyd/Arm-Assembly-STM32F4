@@ -3,3 +3,6 @@
 *.out
 *.o
 *.ld
+push/config.cfg
+push/misc.txt
+push/push.list

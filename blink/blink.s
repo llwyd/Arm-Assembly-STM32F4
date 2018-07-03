@@ -14,10 +14,10 @@
 _start:
 	.word STACK_TOP, start
 start:
-	ldr r0, = 0x40023800 	@ Address for RCC Clock Enable for PORT D
-	ldr r1, [r0, #0x30] 	@ Load with Offset
-	orr r1, #8 				@ Enable Port D
-	str r1, [r0, #0x30] 	@ Store value
+	ldr r0, = 0x40023800	@ Address for RCC Clock Enable for PORT D
+	ldr r1, [r0, #0x30]		@ Load with Offset
+	orr r1, #8				@ Enable Port D
+	str r1, [r0, #0x30]		@ Store value
 
 	ldr r0, = 0x40020C00 	@ Load Pin Mode Select Register
 	ldr r1, [r0, #0x00]  	@ Load withOffset
