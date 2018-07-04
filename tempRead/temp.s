@@ -33,7 +33,7 @@ val:
 loop:
 	eors r1,r2		@ XOR with latest value of r2
 	str r1, [r0, #0x14] 	@ Store with offset
-	mov r3, #0x500000 	@ Arbitrary Delay
+	mov r3, #0x50000 	@ Arbitrary Delay
 delay:
 	subs r3,1 		@ Substract 1 from delay
 	bne delay 		@ When zero reset
