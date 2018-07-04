@@ -10,7 +10,8 @@ clean:
 program:
 	#st-flash write temp.bin 0x8000000
 	openocd -f /usr/share/openocd/scripts/interface/stlink-v2-1.cfg -f /usr/share/openocd/scripts/target/stm32f4x.cfg -c "program temp.bin exit 0x8000000 verify reset"
-openocd:
+debug:
+	#Don't forget to telnet localhost 4444 :)
 	openocd -f /usr/share/openocd/scripts/interface/stlink-v2-1.cfg -f /usr/share/openocd/scripts/target/stm32f4x.cfg
 
 
