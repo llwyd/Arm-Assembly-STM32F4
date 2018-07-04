@@ -57,6 +57,23 @@ start:
 	/*I2C base address=0x40005400*/
 	/*Configure I2C1 as master mode*/
 
+	/*Configure CR2 to generate correct timings*/
+	/*Default APB clock is 16MHz*/
+        ldr r0, = 0x40005400    @ Load Base Address for I2C1
+        ldr r1, [r0, #0x04]     @ Load CR2
+        bfc r1, #0, #6         	@ Clear bits 0->5
+        orr r1, #0x400          @ Set bits for Output
+        str r1, [r0, #0x04]     @ Store value
+	/*Clock control register*/
+	ldr r1, [r0, #0x1C]     @ Load clock control register
+	orr r1, #0x50		@ set CCR, standard mode is default
+	str r1, [r0, #0x1C]	@ Store value
+	/*Configure rise time register*/
+	ldr r1, [r0, #0x20]	@ Load TRISE register
+	bfc r1, #0, #6		@ Clear bits 0->5
+	orr r1, #0x11		@ Set rise time
+	str r1, [r0, #0x20]	@ Store value
+
 	ldr r0, = 0x40020000    @ Load GPIO A base register for LED
 val:
 	MOV r2, #0x20 		@ Starting LED value (PA5)
