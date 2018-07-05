@@ -75,7 +75,7 @@ start:
 	str r1, [r0, #0x20]	@ Store value
 	/* Enable the peripheral */
         ldr r1, [r0, #0x00]     @ Load CR1 register
-        orr r1, #0x81           @ Enable the peripheral/disable clckstretch
+        orr r1, #0x01           @ Enable the peripheral/disable clckstretch
         str r1, [r0, #0x00]     @ Store value
 	/* Send Start Condition */
 	ldr r1, [r0, #0x00]	@ Reload CR1 register
@@ -83,11 +83,39 @@ start:
 	str r1, [r0, #0x00]	@ store register
 	/* check status register to ensure SB is set */
 scond:
-	ldr r4, [r0, #0x14]     @ Reload CR1 register
-	cmp r4,#0x01
+	ldr r4, [r0, #0x14]     @ Reload SR1 register
+	cmp r4,#0x01		@ Wait for start condition
 	bne scond
+	/* After start condition is recognised send address*/
+	/* Address for TMP102 = 0x48 */
+	mov r5, #0x48		@ Address of sensor
+	lsls r5,#0x1		@ shift left once
+	orr r5, #0x1		@ Set read bit
+	str r5, [r0, #0x10]	@ write into data register
+	/* Check whether address has been sent successfully */
+add:
+        ldr r4, [r0, #0x14]     @ Reload SR1 register
+        and r4,#0x02		@ bit mask
+	cmp r4,#0x02            @ Wait for start condition
+        bne add
+	ldr r5, [r0, #0x18]
+	/* wait while data buffer is filled */
+read:
+	ldr r4, [r0, #0x14]	@ Reload status register
+	and r4, #0x40		@ bitmask for read bit
+	cmp r4, #0x40		@ compare
+	bne read		@ branch if not equal
+	ldr r9, [r0,#0x10]	@ Read value from sensor
+readL:
+        ldr r4, [r0, #0x14]     @ Reload status register
+        and r4, #0x40           @ bitmask for read bit
+        cmp r4, #0x40           @ compare
+        bne readL               @ branch if not equal
+        ldr r10, [r0,#0x10]      @ Read value from sensor
 
-	ldr r0, = 0x40020000    @ Load GPIO A base register for LED
+
+
+	ldr r6, = 0x40020000    @ Load GPIO A base register for LED
 val:
 	MOV r2, #0x20 		@ Starting LED value (PA5)
 	MOV r1, #0x00000000
