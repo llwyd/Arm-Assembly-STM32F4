@@ -73,6 +73,19 @@ start:
 	bfc r1, #0, #6		@ Clear bits 0->5
 	orr r1, #0x11		@ Set rise time
 	str r1, [r0, #0x20]	@ Store value
+	/* Enable the peripheral */
+        ldr r1, [r0, #0x00]     @ Load CR1 register
+        orr r1, #0x81           @ Enable the peripheral/disable clckstretch
+        str r1, [r0, #0x00]     @ Store value
+	/* Send Start Condition */
+	ldr r1, [r0, #0x00]	@ Reload CR1 register
+	orr r1, #0x100		@ Set start condition
+	str r1, [r0, #0x00]	@ store register
+	/* check status register to ensure SB is set */
+scond:
+	ldr r4, [r0, #0x14]     @ Reload CR1 register
+	cmp r4,#0x01
+	bne scond
 
 	ldr r0, = 0x40020000    @ Load GPIO A base register for LED
 val:

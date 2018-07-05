@@ -13,5 +13,6 @@ program:
 debug:
 	#Don't forget to telnet localhost 4444 :)
 	openocd -f /usr/share/openocd/scripts/interface/stlink-v2-1.cfg -f /usr/share/openocd/scripts/target/stm32f4x.cfg
-
+dump:
+	arm-none-eabi-objdump -S temp.o > temp.list
 
