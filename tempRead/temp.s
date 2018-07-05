@@ -75,8 +75,9 @@ start:
 	str r1, [r0, #0x20]	@ Store value
 	/* Enable the peripheral */
         ldr r1, [r0, #0x00]     @ Load CR1 register
-        orr r1, #0x01           @ Enable the peripheral/disable clckstretch
-        str r1, [r0, #0x00]     @ Store value
+        orr r1, #0x01          @ Enable the peripheral/disable clckstretch
+        orr r1, #0x400
+	str r1, [r0, #0x00]     @ Store value
 	/* Send Start Condition */
 	ldr r1, [r0, #0x00]	@ Reload CR1 register
 	orr r1, #0x100		@ Set start condition
@@ -98,7 +99,7 @@ add:
         and r4,#0x02		@ bit mask
 	cmp r4,#0x02            @ Wait for start condition
         bne add
-	ldr r5, [r0, #0x18]
+	ldr r5, [r0, #0x18]	@ Load SR2
 	/* wait while data buffer is filled */
 read:
 	ldr r4, [r0, #0x14]	@ Reload status register
@@ -106,6 +107,7 @@ read:
 	cmp r4, #0x40		@ compare
 	bne read		@ branch if not equal
 	ldr r9, [r0,#0x10]	@ Read value from sensor
+	/*Send acknowledgement*/
 readL:
         ldr r4, [r0, #0x14]     @ Reload status register
         and r4, #0x40           @ bitmask for read bit
