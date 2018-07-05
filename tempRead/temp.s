@@ -75,8 +75,8 @@ start:
 	str r1, [r0, #0x20]	@ Store value
 	/* Enable the peripheral */
         ldr r1, [r0, #0x00]     @ Load CR1 register
-        orr r1, #0x01          @ Enable the peripheral/disable clckstretch
-        orr r1, #0x400
+        orr r1, #0x01           @ Enable the peripheral
+        orr r1, #0x400		@ Enable Acknowledgements
 	str r1, [r0, #0x00]     @ Store value
 	/* Send Start Condition */
 	ldr r1, [r0, #0x00]	@ Reload CR1 register
@@ -117,7 +117,7 @@ readL:
 
 
 
-	ldr r6, = 0x40020000    @ Load GPIO A base register for LED
+	ldr r0, = 0x40020000    @ Load GPIO A base register for LED
 val:
 	MOV r2, #0x20 		@ Starting LED value (PA5)
 	MOV r1, #0x00000000
