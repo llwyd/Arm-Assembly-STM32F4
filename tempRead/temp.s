@@ -107,16 +107,24 @@ read:
 	cmp r4, #0x40		@ compare
 	bne read		@ branch if not equal
 	ldr r9, [r0,#0x10]	@ Read value from sensor
-	/*Send acknowledgement*/
+	/*Clear ACK bit*/
+	/* Send stop command*/
+	/* Datasheet states this should be done before final byte read*/
+        ldr r1, [r0, #0x00]     @ Load CR1 register
+        bic r1,r1, #0x400       @ Disable Acknowledgements
+        orr r1,#0x200		@ Set stop flag
+	str r1, [r0, #0x00]     @ Store value
+	/* Read Final Byte*/
 readL:
         ldr r4, [r0, #0x14]     @ Reload status register
         and r4, #0x40           @ bitmask for read bit
         cmp r4, #0x40           @ compare
         bne readL               @ branch if not equal
         ldr r10, [r0,#0x10]      @ Read value from sensor
+	/* Send Stop Bit */
+	/*Transfer Complete!*/
 
-
-
+	/* LED blink to make sure things are running */
 	ldr r0, = 0x40020000    @ Load GPIO A base register for LED
 val:
 	MOV r2, #0x20 		@ Starting LED value (PA5)
