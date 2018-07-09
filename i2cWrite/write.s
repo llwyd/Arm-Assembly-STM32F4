@@ -78,6 +78,9 @@ start:
         orr r1, #0x01           @ Enable the peripheral
         @orr r1, #0x400		@ Enable Acknowledgements
 	str r1, [r0, #0x00]     @ Store value
+val:
+	mov r6, #0x00
+loop:
 	/* Send Start Condition */
 	ldr r1, [r0, #0x00]	@ Reload CR1 register
 	orr r1, #0x100		@ Set start condition
@@ -104,22 +107,20 @@ write:
 	and r4, #0x80		@ bitmask for write bit
 	cmp r4, #0x80		@ compare
 	bne write		@ branch if not equal
-	mov r5, #0x0F		@ Load register to write
+	mov r5, r6		@ Load register to write
 	str r5, [r0,#0x10]	@ Write value to device
 	/* Send stop command*/
 	ldr r1, [r0, #0x00]     @ Load CR1 register
         orr r1,#0x200		@ Set stop flag
 	str r1, [r0, #0x00]     @ Store value
 	/*Transfer Complete!*/
-
+	add r6,#1		@increment leds
+	cmp r6,#0xff
+	beq val
 	/* LED blink to make sure things are running */
-	ldr r0, = 0x40020000    @ Load GPIO A base register for LED
-val:
-	MOV r2, #0x20 		@ Starting LED value (PA5)
-	MOV r1, #0x00000000
-loop:
-	eors r1,r2		@ XOR with latest value of r2
-	str r1, [r0, #0x14] 	@ Store with offset
+	@ldr r0, = 0x40020000    @ Load GPIO A base register for LED
+	@eors r1,r2		@ XOR with latest value of r2
+	@str r1, [r0, #0x14] 	@ Store with offset
 	mov r3, #0x50000 	@ Arbitrary Delay
 delay:
 	subs r3,1 		@ Substract 1 from delay
