@@ -87,7 +87,7 @@ start:
         ldr r0, = 0x40012000    @ Base Address for ADC
         /* Set resolution */
         ldr r1, [r0, #0x04]     @ Load Control Register 1
-        orr r1, #0x2000000      @ 8 bit resolution
+        orr r1, #0x0000000      @ 12 bit resolution
         str r1, [r0, #0x04]     @ Store value
         /*Turn on ADC*/
         ldr r1, [r0, #0x08]     @ Load Control Register 2
@@ -109,6 +109,7 @@ adc:
 	cmp r5, #0x02
 	bne adc
 	ldr r6, [r2, #0x4C]     @ Load Data register
+	lsr r6,r6,#0x4
 	mov r5,#0x8
 	mov r1,r6
 adjust:
