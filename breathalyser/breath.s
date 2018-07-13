@@ -109,6 +109,13 @@ adc:
 	cmp r5, #0x02
 	bne adc
 	ldr r6, [r2, #0x4C]     @ Load Data register
+	mov r5,#0x8
+	mov r1,r6
+adjust:
+	orr r6,r6,r1
+	lsr r1,#1
+	subs r5,1
+	bne adjust
 	/* Send Start Condition */
 	ldr r1, [r0, #0x00]	@ Reload CR1 register
 	orr r1, #0x100		@ Set start condition
