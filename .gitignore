@@ -7,3 +7,4 @@ push/config.cfg
 push/misc.txt
 push/push.list
 *.list
+*.swp

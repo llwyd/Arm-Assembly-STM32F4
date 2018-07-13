@@ -1,7 +1,7 @@
 @
-@	write.s
+@	breath.s
 @	T.L. 2018
-@	Writes to i2c expander (PCF8574A)
+@	Read alcohol gas from MQ3 sensor and writes to i2c expander (PCF8574A)
 @
 @	STM32F401RE
 @
@@ -22,16 +22,21 @@ start:
 	orr r1, #1		@ Enable GPIO A
 	orr r1, #2		@ Enable GPIO B
 	str r1, [r0, #0x30]	@ Store value
-
+	/* Enable ADC1 */
+        ldr r1, [r0, #0x44]     @ Load with Offset
+        orr r1, #0x100          @ Enable ADC1
+        str r1, [r0, #0x44]     @ Store value
+	/*Set pinmodes for GPIO A*/
 	ldr r0, = 0x40020000 	@ Load Pin Mode Select Register GPIO A
 	ldr r1, [r0, #0x00]  	@ Load withOffset
+	bfc r1, #0,  #2         @ Clear bits for PA0 (ADC1_0)
 	bfc r1, #10, #2  	@ Clear bits for PA5
+	orr r1, #0x03           @ Enable analog mode (PA0)
 	orr r1, #0x400  	@ Set bits for Output
 	str r1, [r0, #0x00] 	@ Store value
 	/* Configure I2C*/
 	/*PB8=SCL*/
 	/*PB9=SDA*/
-
 	/*Set Alternative Functions*/
         ldr r0, = 0x40020400    @ GPIO B base register
         ldr r1, [r0, #0x00]     @ Load Pin Mode Select Register
@@ -56,7 +61,6 @@ start:
 
 	/*I2C base address=0x40005400*/
 	/*Configure I2C1 as master mode*/
-
 	/*Configure CR2 to generate correct timings*/
 	/*Default APB clock is 16MHz*/
         ldr r0, = 0x40005400    @ Load Base Address for I2C1
@@ -78,9 +82,33 @@ start:
         orr r1, #0x01           @ Enable the peripheral
         @orr r1, #0x400		@ Enable Acknowledgements
 	str r1, [r0, #0x00]     @ Store value
-val:
+        /* Configure ADC */
+        /* ADC base address = 0x40012000 */
+        ldr r0, = 0x40012000    @ Base Address for ADC
+        /* Set resolution */
+        ldr r1, [r0, #0x04]     @ Load Control Register 1
+        orr r1, #0x2000000      @ 8 bit resolution
+        str r1, [r0, #0x04]     @ Store value
+        /*Turn on ADC*/
+        ldr r1, [r0, #0x08]     @ Load Control Register 2
+        orr r1, #0x3            @ Continuous conversion and turn on ADC
+        str r1, [r0, #0x08]     @ Store value
+        /* Begin conversion */
+        ldr r1, [r0, #0x08]     @ Load Control Register 2
+        orr r1, #0x40000000     @ start conversion
+        str r1, [r0, #0x08]     @ Store value
+	/* Reload i2c1 base address*/
+	ldr r0, = 0x40005400    @ Load Base Address for I2C1
+	ldr r2, = 0x40012000    @ Base Address for ADC
 	mov r6, #0x00
 loop:
+	/*Read ADC*/
+adc:
+	ldr r5, [r2, #0x00]	@Load status register
+	and r5, #0x02
+	cmp r5, #0x02
+	bne adc
+	ldr r6, [r2, #0x4C]     @ Load Data register
 	/* Send Start Condition */
 	ldr r1, [r0, #0x00]	@ Reload CR1 register
 	orr r1, #0x100		@ Set start condition
@@ -108,20 +136,20 @@ write:
 	cmp r4, #0x80		@ compare
 	bne write		@ branch if not equal
 	mov r5, r6		@ Load register to write
-	str r6, [r0,#0x10]	@ Write value to device
+	str r5, [r0,#0x10]	@ Write value to device
 	/* Send stop command*/
 	ldr r1, [r0, #0x00]     @ Load CR1 register
         orr r1,#0x200		@ Set stop flag
 	str r1, [r0, #0x00]     @ Store value
 	/*Transfer Complete!*/
-	add r6,#0x1		@increment leds
-	cmp r6,#0xff
-	beq val
+	@add r6,#1		@increment leds
+	@cmp r6,#0xff
+	@beq val
 	/* LED blink to make sure things are running */
 	@ldr r0, = 0x40020000    @ Load GPIO A base register for LED
 	@eors r1,r2		@ XOR with latest value of r2
 	@str r1, [r0, #0x14] 	@ Store with offset
-	mov r3, #0x050000 	@ Arbitrary Delay
+	mov r3, #0x50000 	@ Arbitrary Delay
 delay:
 	subs r3,1 		@ Substract 1 from delay
 	bne delay 		@ When zero reset
