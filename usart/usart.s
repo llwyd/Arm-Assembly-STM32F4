@@ -5,7 +5,6 @@
 @
 @
 @	STM32F401RE
-
 	.equ    STACK_TOP, 0x20000000
 	.text
 	.syntax unified
@@ -48,12 +47,12 @@ start:
 	lsl r2,#0x04		@shift right 4
 	orr r2, #0xb		@Add fraction
         str r2, [r0, #0x08]     @ Store value
-
+write:
         ldr r1, [r0, #0x0C]     @ Load Control Register 1
         orr r1, #0x2000         @ Enable Tx and UART
         orr r1, #0x08
 	str r1, [r0, #0x0C]     @ Store value
-write:
+
 	MOV r3,#0x54		@ Move letter 'T' to r3
 	str r3,[r0,#0x04]	@ Store in data register
 wait:
@@ -61,11 +60,21 @@ wait:
 	and r4,#0x40		@ bit mask
 	cmp r4,#0x40
 	bne wait
-	b write
+	MOV r3, #0xA
+	str r3,[r0,#0x04]       @ Store in data register
+wait2:
+	ldr r4,[r0, #0x00]      @Load status register
+        and r4,#0x40            @ bit mask
+        cmp r4,#0x40
+        bne wait2
+	/* End Transmission */
+	ldr r1,[r0,#0x0C]	@load control register
+	bfc r1,#13,#1
+	str r1,[r0,#0x0C]	@store
 
-	mov r3, #0x500000
+	mov r5, #0x100000
 delay:
-	subs r3,1 		@ Substract 1 from delay
+	subs r5,1 		@ Substract 1 from delay
 	bne delay 		@ When zero reset
 	b write			@ start loop again
 deadloop:
