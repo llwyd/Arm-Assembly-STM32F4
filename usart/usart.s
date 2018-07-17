@@ -50,7 +50,7 @@ start:
 	orr r2, #0xb		@Add fraction
         str r2, [r0, #0x08]     @ Store value
 set:
-	mov r7,0x0
+	mov r6,0x0
 write:
         ldr r1, [r0, #0x0C]     @ Load Control Register 1
         orr r1, #0x2000         @ Enable Tx and UART
@@ -59,7 +59,7 @@ write:
 
 	@MOV r3,#0x54		@ Move letter 'T' to r3
 	ldr r4,=message		@ address of message
-	ldrb r3,[r4,r7]
+	ldrb r3,[r4,r6]
 	str r3,[r0,#0x04]	@ Store in data register
 wait:
 	ldr r4,[r0, #0x00]	@Load status register
@@ -71,8 +71,8 @@ wait:
 	bfc r1,#13,#1
 	str r1,[r0,#0x0C]	@store
 
-	add r7,#0x01		@increment counter for value
-	cmp r7,#0xF
+	add r6,#0x01		@increment counter for value
+	cmp r6,#0xF
 	beq set
 	mov r5, #0x100000
 delay:
