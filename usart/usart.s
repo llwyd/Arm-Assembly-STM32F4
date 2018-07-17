@@ -66,13 +66,6 @@ wait:
 	and r4,#0x40		@ bit mask
 	cmp r4,#0x40
 	bne wait
-	MOV r3, #0xA
-	str r3,[r0,#0x04]       @ Store in data register
-wait2:
-	ldr r4,[r0, #0x00]      @Load status register
-        and r4,#0x40            @ bit mask
-        cmp r4,#0x40
-        bne wait2
 	/* End Transmission */
 	ldr r1,[r0,#0x0C]	@load control register
 	bfc r1,#13,#1
