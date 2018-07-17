@@ -5,8 +5,10 @@
 @
 @
 @	STM32F401RE
-	.equ    STACK_TOP, 0x20000000
+	.data
+	.word 0x00000000
 	.text
+	.equ    STACK_TOP, 0x20000000
 	.syntax unified
 	.thumb
 	.global _start
@@ -47,13 +49,17 @@ start:
 	lsl r2,#0x04		@shift right 4
 	orr r2, #0xb		@Add fraction
         str r2, [r0, #0x08]     @ Store value
+set:
+	mov r7,0x0
 write:
         ldr r1, [r0, #0x0C]     @ Load Control Register 1
         orr r1, #0x2000         @ Enable Tx and UART
         orr r1, #0x08
 	str r1, [r0, #0x0C]     @ Store value
 
-	MOV r3,#0x54		@ Move letter 'T' to r3
+	@MOV r3,#0x54		@ Move letter 'T' to r3
+	ldr r4,=message		@ address of message
+	ldrb r3,[r4,r7]
 	str r3,[r0,#0x04]	@ Store in data register
 wait:
 	ldr r4,[r0, #0x00]	@Load status register
@@ -72,6 +78,9 @@ wait2:
 	bfc r1,#13,#1
 	str r1,[r0,#0x0C]	@store
 
+	add r7,#0x01		@increment counter for value
+	cmp r7,#0xF
+	beq set
 	mov r5, #0x100000
 delay:
 	subs r5,1 		@ Substract 1 from delay
@@ -79,5 +88,7 @@ delay:
 	b write			@ start loop again
 deadloop:
 	b	deadloop
+message:
+	.asciz "Hello, World!\n\r"
 .end
 
