@@ -6,7 +6,7 @@
 @
 @	STM32F401RE
 
-	.equ    STACK_TOP, 0x20000000
+	.equ    STACK_TOP, 0x20010000
 	.text
 	.syntax unified
 	.thumb
